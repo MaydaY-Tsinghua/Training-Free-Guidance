@@ -5,7 +5,7 @@ import torch
 
 class BaseGuidance:
 
-    def __init__(self, args: Arguments, noise_fn: None):
+    def __init__(self, args: Arguments, noise_fn=None):
 
         self.args = args
         self.guider = BaseGuider(args)
@@ -17,6 +17,12 @@ class BaseGuidance:
             self.noise_fn = noise_fn
         else:
             self.noise_fn = noise_fn
+
+    def set_prompt(self, **kwargs):
+        self.guider.set_prompt(**kwargs)
+    
+    def reset(self, **kwargs):
+        pass
 
     def guide_step(
         self,
@@ -32,6 +38,7 @@ class BaseGuidance:
 
         alpha_prod_t = alpha_prod_ts[t]
         alpha_prod_t_prev = alpha_prod_t_prevs[t]
+        i = t
         t = ts[t]
 
         for recur_step in range(self.args.recur_steps):
@@ -47,7 +54,7 @@ class BaseGuidance:
 
             x = self._predict_xt(x_prev, alpha_prod_t, alpha_prod_t_prev, **kwargs)
         
-        return x_prev
+        return x_prev, i+1
 
 
     def _predict_x_prev_from_zero(
