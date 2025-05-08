@@ -1,9 +1,24 @@
 #!/bin/bash
+#!/bin/bash
+#SBATCH --job-name=tfg_222              # Job name
+#SBATCH -o status/myoutput_%j.out  # File to which STDOUT will be written, %j inserts jobid
+#SBATCH -e status/myerrors_%j.err  # File to which STDERR will be written, %j inserts jobid
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --gres=gpu:nvidia_a100-sxm4-80gb:4                    # Request 1 GPU
+#SBATCH --mem=15G                       # Memory
+#SBATCH --time=24:00:00                 # Max runtime
+#SBATCH --partition=gpu                 # Adjust to your cluster
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=504985967@qq.com
 
-CUDA_VISIBLE_DEVICES="0 1"
+
+
+
+CUDA_VISIBLE_DEVICES="0 1 2 3"
 data_type=image
 image_size=256
-per_sample_batch_size=1
+per_sample_batch_size=8
 eval_batch_size=16
 dataset="imagenet"
 
@@ -31,7 +46,7 @@ mu=0.0
 sigma=0.0
 
 # These are fixed hyperparameters for large scale running
-num_samples=1
+num_samples=256
 logging_dir='logs'
 eps_bsz=1
 
@@ -52,7 +67,7 @@ init_sigma=0.01
 max_sigma=10
 init_guidance_strength=0.5
 max_guidance_strength=16
-beam_sample_size=1
+beam_sample_size=128
 eval_batch_size=16
 num_large_scale=5
 
