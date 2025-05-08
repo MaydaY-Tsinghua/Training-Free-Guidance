@@ -195,7 +195,7 @@ if __name__ == '__main__':
     parser.add_argument('--cuda_ids', nargs="+", type=int, default=[0])
     parser.add_argument('--beam_sample_size', type=float, default=64, 
                         help='The number of samples to be generated in each iteration when we are doing beam search.')
-    parser.add_argument('--num_large_scale', type=int, default=0, help='Run large scale experiments for how many configs after beam search.')
+    parser.add_argument('--num_large_scale', type=int, default=5, help='Run large scale experiments for how many configs after beam search.')
     parser.add_argument('--metrics', type=str, nargs="+", default=['validity'])
     
     if args['guidance_name'] == 'tfg':
