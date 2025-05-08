@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CUDA_VISIBLE_DEVICES="0 1 2"
+CUDA_VISIBLE_DEVICES="0 1"
 data_type=image
 image_size=256
 per_sample_batch_size=1
