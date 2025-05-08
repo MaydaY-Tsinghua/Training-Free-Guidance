@@ -3,7 +3,7 @@
 CUDA_VISIBLE_DEVICES="0 1 2"
 data_type=image
 image_size=256
-per_sample_batch_size=8
+per_sample_batch_size=1
 eval_batch_size=16
 dataset="imagenet"
 
