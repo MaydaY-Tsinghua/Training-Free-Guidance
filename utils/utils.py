@@ -6,8 +6,8 @@ from transformers import HfArgumentParser
 from .configs import Arguments
 
 from evaluations.image import ImageEvaluator
-from evaluations.molecule import MoleculeEvaluator
-from evaluations.audio import AudioEvaluator
+# from evaluations.molecule import MoleculeEvaluator
+# from evaluations.audio import AudioEvaluator
 
 from diffusion.ddim import ImageSampler, MoleculeSampler
 from diffusion.audio_diffusion import AudioDiffusionSampler

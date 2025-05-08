@@ -8,7 +8,8 @@
 #SBATCH --mem=32G                       # Memory
 #SBATCH --time=24:00:00                 # Max runtime
 #SBATCH --partition=gpu                 # Adjust to your cluster
-
+#SBATCH --mail-type=FAIL
+#SBATCH --mail-user=504985967@qq.com
 # Load modules or set up env if needed
 # module load python/3.8 cuda/11.7  (example)
 
