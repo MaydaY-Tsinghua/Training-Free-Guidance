@@ -6,3 +6,5 @@ wandb
 sweep_*
 __pycache__
 logs
+*.pth
+*.pt
