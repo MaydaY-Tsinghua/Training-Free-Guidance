@@ -4,8 +4,8 @@
 #SBATCH -e status/myerrors_%j.err  # File to which STDERR will be written, %j inserts jobid
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --gres=gpu:1                    # Request 1 GPU
-#SBATCH --mem=32G                       # Memory
+#SBATCH --gres=gpu:nvidia_a100-sxm4-80gb:1                    # Request 1 GPU
+#SBATCH --mem=5G                       # Memory
 #SBATCH --time=24:00:00                 # Max runtime
 #SBATCH --partition=gpu                 # Adjust to your cluster
 #SBATCH --mail-type=FAIL
@@ -32,8 +32,8 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=1
-num_samples=1
+per_sample_batch_size=8
+num_samples=256
 logging_resolution=512
 guidance_name='tfg'
 bon_rate=1
