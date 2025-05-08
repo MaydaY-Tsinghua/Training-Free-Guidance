@@ -189,8 +189,10 @@ class ImageEvaluator(BaseEvaluator):
 
         # we only allow combined guidance within the same dataset
         if self.args.dataset in ['imagenet', 'cifar10', 'cat']:
-            fid = self._compute_fid(samples, self.args.dataset, self.args.targets)
-            metrics['fid'] = fid
+            # fid = self._compute_fid(samples, self.args.dataset, self.args.targets)
+            # metrics['fid'] = fid
+            print("skip fid")
+
         
         if self.args.dataset in ['celebahq']:
             kid = self._compute_kid(samples)
