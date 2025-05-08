@@ -35,7 +35,8 @@ class BaseGuider:
                 param.requires_grad = False
             self.processor = lambda x: self.vae.decode(x / self.vae.config.scaling_factor, return_dict=False, generator=self.generator)[0]
         else:
-            self.processor = lambda x: x
+            self.processor = lambda x:  torch.clamp((x + 1) / 2, 0, 1)
+            # self.processor = lambda x: x
 
     @torch.enable_grad()
     def process(self, x):
