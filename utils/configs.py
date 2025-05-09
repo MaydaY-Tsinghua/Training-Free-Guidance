@@ -100,3 +100,8 @@ class Arguments:
     bon_rate: int = field(default=1)
     bon_guidance: str = field(default=None)
 
+    # bfs
+    start: int = field(default=25)
+    step_size: int = field(default=25)
+    temp: float = field(default=0.0)
+
