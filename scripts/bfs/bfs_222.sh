@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --gres=gpu:nvidia_a100-sxm4-80gb:1                    # Request 1 GPU
-#SBATCH --mem=5G                       # Memory
+#SBATCH --mem=20G                       # Memory
 #SBATCH --time=6:00:00                 # Max runtime
 #SBATCH --partition=gpu                 # Adjust to your cluster
 #SBATCH --mail-type=FAIL
@@ -24,6 +24,7 @@ model_name_or_path='models/openai_imagenet.pt'
 
 task=label_guidance
 guide_network='google/vit-base-patch16-224'
+bon_guidance="google/vit-base-patch16-224"
 target=222
 
 train_steps=1000
@@ -32,10 +33,10 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=8
+per_sample_batch_size=2
 num_samples=256
 logging_resolution=512
-guidance_name='tfg'
+guidance_name='bfs'
 bon_rate=1
 eval_batch_size=32
 wandb=False
@@ -45,6 +46,10 @@ mu=0.4
 sigma=0.1
 eps_bsz=1
 iter_steps=4
+
+start=25
+step_size=25
+temp=0.0
 
 # Run
 python main.py \
@@ -72,4 +77,8 @@ python main.py \
     --per_sample_batch_size $per_sample_batch_size \
     --num_samples $num_samples \
     --guidance_name $guidance_name \
-    --eval_batch_size $eval_batch_size
+    --eval_batch_size $eval_batch_size \
+    --temp $temp \
+    --bon_guidance $bon_guidance \
+    --start $start \
+    --step_size $step_size \
