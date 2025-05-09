@@ -9,3 +9,4 @@ logs
 *.pth
 *.pt
 status/
+results/
