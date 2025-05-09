@@ -28,12 +28,14 @@ if __name__ == '__main__':
 
     pipeline = BasePipeline(args, network, guider, evaluator, bon_guider=bon_guider)
 
-    samples = pipeline.sample(args.num_samples)
+    samples,compute = pipeline.sample(args.num_samples)
     # logger.log_samples(samples)
     
     # release torch occupied gpu memory
     torch.cuda.empty_cache()
     
     metrics = evaluator.evaluate(samples)
+    for k,v in compute.items():
+        metrics[k] = v
     if metrics is not None: # avoid rewriting metrics to json
         logger.log_metrics(metrics, save_json=True)

@@ -54,12 +54,14 @@ class ImageSampler(BaseSampler):
     
 
     @torch.no_grad()
-    def sample(self, sample_size: int, guidance: BaseGuidance):
+    def sample(self, sample_size: int, guidance: BaseGuidance, bon_guider:BaseGuidance=None):
         
         tot_samples = []
-        n_batchs = math.ceil(sample_size / self.per_sample_batch_size)
+        tot_compute = 0
+        # n_batchs = math.ceil(sample_size / self.per_sample_batch_size)
+        n_batchs = sample_size
 
-        for batch_id in range(n_batchs):
+        for batch_id in tqdm(range(n_batchs)):
             
             self.args.batch_id = batch_id
 
@@ -69,14 +71,16 @@ class ImageSampler(BaseSampler):
                 device=self.device,
             )
 
-            for t in tqdm(range(self.inference_steps), total=self.inference_steps):
+            for t in range(self.inference_steps):
                 
+                tot_compute += x.shape[0]
                 x = guidance.guide_step(
                     x, t, self.unet,
                     self.ts,
                     self.alpha_prod_ts, 
                     self.alpha_prod_t_prevs,
                     self.eta,
+                    bon_guider=bon_guider,
                 )
 
                 # we may want to log some trajs
@@ -84,8 +88,8 @@ class ImageSampler(BaseSampler):
                     logger.log_samples(self.tensor_to_obj(x), fname=f'traj/time={t}')
 
             tot_samples.append(x)
-        
-        return torch.concat(tot_samples)
+        avg_compute = tot_compute / len(tot_samples)
+        return torch.concat(tot_samples), {'compute': avg_compute}
         
     @staticmethod
     def tensor_to_obj(x):

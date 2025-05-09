@@ -37,7 +37,7 @@ class BasePipeline(object):
 
             # guidance_batch_size = self.batch_size  
 
-            samples = self.network.sample(sample_size=sample_size * self.bon_rate, guidance=self.guider)
+            samples, compute = self.network.sample(sample_size=sample_size * self.bon_rate, guidance=self.guider, bon_guider=self.bon_guider)
 
             # logp_list = []
             # for i in range(0, samples.shape[0], guidance_batch_size):
@@ -56,7 +56,7 @@ class BasePipeline(object):
 
             samples = self.network.tensor_to_obj(samples)
                     
-        return samples
+        return samples, compute
     
     def evaluate(self, samples):
         return self.check_done_and_evaluate(samples)
