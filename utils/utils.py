@@ -33,7 +33,7 @@ def get_logging_dir(arg_dict: dict):
     else:
         suffix = "guidance_strength=" + str(arg_dict['guidance_strength'])
     
-    if arg_dict['guidance_name'] == "bfs":
+    if 'bfs' in arg_dict['guidance_name']:
         suffix1 = f"rho={arg_dict['rho']}-{arg_dict['rho_schedule']}+mu={arg_dict['mu']}-{arg_dict['mu_schedule']}+sigma={arg_dict['sigma']}-{arg_dict['sigma_schedule']}"
         suffix2 = f"start={arg_dict['start']}+step_size={arg_dict['step_size']}"
         suffix3 = f"particles={arg_dict['per_sample_batch_size']}+temp={arg_dict['temp']}"

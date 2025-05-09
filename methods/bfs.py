@@ -145,12 +145,15 @@ class BFSGuidance(BaseGuidance):
                 logprobs = self.guider.get_guidance(x0, return_logp=True, check_grad=False, **kwargs)
             num_children = x.shape[0] * torch.softmax(logprobs * temp, dim=0)
             num_children = torch.round(num_children).long()
-            # ## rebase
-            # resampled_indices = torch.repeat_interleave(
-            #     torch.arange(x.shape[0], device=x.device), num_children
-            # )[:x.shape[0]]
+            ## rebase
+            if self.args.guidance_name == 'bfs-resample':
+                resampled_indices = torch.repeat_interleave(
+                    torch.arange(x.shape[0], device=x.device), num_children
+                )[:x.shape[0]]
+                breakpoint()
             ## pruning
-            resampled_indices = torch.where(num_children > 0)[0]
+            elif self.args.guidance_name == 'bfs-prune':
+                resampled_indices = torch.where(num_children > 0)[0]
             x_prev = x_prev[resampled_indices]
 
 
