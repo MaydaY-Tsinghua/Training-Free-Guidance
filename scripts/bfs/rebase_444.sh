@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=rebase_222_t1              # Job name
+#SBATCH --job-name=rebase_222_t2             # Job name
 #SBATCH -o status/myoutput_%j.out  # File to which STDOUT will be written, %j inserts jobid
 #SBATCH -e status/myerrors_%j.err  # File to which STDERR will be written, %j inserts jobid
 #SBATCH --ntasks=1
@@ -49,7 +49,7 @@ iter_steps=4
 
 start=25
 step_size=25
-temp=1.0
+temp=2.0
 
 # Run
 python main.py \
