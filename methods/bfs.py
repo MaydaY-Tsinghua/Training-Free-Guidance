@@ -150,7 +150,6 @@ class BFSGuidance(BaseGuidance):
                 resampled_indices = torch.repeat_interleave(
                     torch.arange(x.shape[0], device=x.device), num_children
                 )[:x.shape[0]]
-                breakpoint()
             ## pruning
             elif self.args.guidance_name == 'bfs-prune':
                 resampled_indices = torch.where(num_children > 0)[0]
