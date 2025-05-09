@@ -15,7 +15,7 @@
 
 
 
-CUDA_VISIBLE_DEVICES="0 1 2 3"
+CUDA_VISIBLE_DEVICES="4 5 6 7"
 data_type=image
 image_size=256
 per_sample_batch_size=8
@@ -58,10 +58,10 @@ sigma_schedule='decrease'
 sweep_dir=sweep_$task
 cuda_ids=$CUDA_VISIBLE_DEVICES
 topk=3
-max_sweep=2
-init_rho=0.2
+max_sweep=16
+init_rho=0.5
 max_rho=8
-init_mu=0.2
+init_mu=0.5
 max_mu=8
 init_sigma=0.01
 max_sigma=10
