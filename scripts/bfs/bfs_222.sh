@@ -24,7 +24,7 @@ model_name_or_path='models/openai_imagenet.pt'
 
 task=label_guidance
 guide_network='google/vit-base-patch16-224'
-bon_guidance="google/vit-base-patch16-224"
+bon_guidance="google/vit-base-patch16-384"
 target=222
 
 train_steps=1000
