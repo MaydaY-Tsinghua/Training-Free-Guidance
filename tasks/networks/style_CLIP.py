@@ -56,7 +56,7 @@ class StyleCLIP(torch.nn.Module):
 
         embed = self.get_gram_matrix(x)
         diff = (embed - self.target_embedding).reshape(embed.shape[0], -1)
-        similarity = -(diff ** 2).sum(dim=1).sqrt() / 100
+        similarity = -(diff ** 2) / 100
 
         return similarity
     

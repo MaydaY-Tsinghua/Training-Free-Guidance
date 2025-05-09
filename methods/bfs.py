@@ -45,7 +45,7 @@ class BFSGuidance(BaseGuidance):
 
         
         temp = self.get_temp(t, alpha_prod_ts, alpha_prod_t_prevs)
-        # eta = 1.0
+        eta = 1.0   ## for random transition kernal in BFS resampling
         i = t
         t = ts[t]   # convert from int space to tensor space
 
@@ -62,9 +62,10 @@ class BFSGuidance(BaseGuidance):
             prob = torch.softmax(logprob, dim=0)
             num_children = prob * bs
             # REBASE
-            # resampled_indices = torch.repeat_interleave(torch.arange(bs,device=x.device), num_children.long(), dim=0)
+            num_children = torch.round(num_children)
+            resampled_indices = torch.repeat_interleave(torch.arange(bs,device=x.device), num_children.long(), dim=0)[:bs]
             # pruning
-            resampled_indices = torch.where(num_children > 0.5)[0]
+            # resampled_indices = torch.where(num_children > 0.5)[0]
             # # Beam Search Pruning
             # sorted_indices = torch.argsort(logprob, descending=True)
             # resampled_indices = sorted_indices[:-1] if len(sorted_indices) > 1 else sorted_indices

@@ -1,12 +1,12 @@
-CUDA_VISIBLE_DEVICES=0
+CUDA_VISIBLE_DEVICES=1
 data_type=text2image
 image_size=512
 dataset="parti_prompts"
-model_name_or_path='runwayml/stable-diffusion-v1-5'
+model_name_or_path='segmind/SSD-1B'
 
 task=style_transfer
 guide_network='openai/clip-vit-base-patch16'
-target=./data/wikiart/1.png
+target=./data/wikiart/2.png
 
 train_steps=1000
 inference_steps=100

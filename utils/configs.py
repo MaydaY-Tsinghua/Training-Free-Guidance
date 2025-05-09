@@ -1,7 +1,8 @@
 import os
+import torch
 from dataclasses import dataclass, field
 from typing import Literal, Optional, Union, List
-from logger.base import BaseLogger
+# from logger.base import BaseLogger
 
 @dataclass
 class Arguments:
@@ -45,11 +46,12 @@ class Arguments:
 
     # inference related:
     seed: int = field(default=42)
-    device: str = field(default='cuda')
+    # device: str = field(default='cuda')
+    device: torch.device = field(default=torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
     logging_dir: str = field(default='logs')
-    logger: BaseLogger = None       # Initialize upon instantiation
+    # logger: BaseLogger = None       # Initialize upon instantiation
     per_sample_batch_size: int = field(default=128)
-    num_samples: int = field(default=2048)
+    num_samples: int = field(default=1)
     batch_id: int = field(default=0)    # start from the zero
 
     # guidance related
@@ -95,4 +97,17 @@ class Arguments:
     topk: int = field(default=5)
     output_path: str = field(default='vis_molecule')
     max_n_samples: int = field(default=10000000000)
+
+    # BFS related
+    temp: float = field(default=1.0)
+    resample_interval: int = field(default=15)
+    resample_steps: List[int] = field(default_factory=list)
+
+    # DFS related 
+    threshold: float = field(default=1.2)
+    budget: int = field(default=4)
+    recur_depth: int = field(default=12)
+
+    start_step: int = field(default=20)
+    step_size: int = field(default=10)
 

@@ -4,7 +4,8 @@ import os
 from PIL import Image
 from torchvision import transforms
 from datasets import load_from_disk, load_dataset
-from diffusers import StableDiffusionPipeline
+# from diffusers import StableDiffusionPipeline
+from diffusers import AutoencoderTiny
 from functools import partial
 import logger
 
@@ -15,6 +16,8 @@ from .gaussian_deblur import GaussianDeblur
 from .molecule_properties import MoleculePropertyGuidance
 from .audio_declipping import AduioDeclippingGuidance
 from .audio_inpainting import AduioInpaintingGuidance
+from .OCR_guidance import OCRGuider
+from .blip_vqa import BLIPGuider
 
 class BaseGuider:
 
@@ -27,13 +30,23 @@ class BaseGuider:
 
     def load_processor(self):
         if self.args.data_type == 'text2image':
-            sd = StableDiffusionPipeline.from_pretrained(self.args.model_name_or_path)
-            self.vae = sd.vae
+            # sd = StableDiffusionPipeline.from_pretrained(self.args.model_name_or_path)
+            # self.vae = sd.vae
+            self.vae = AutoencoderTiny.from_pretrained("madebyollin/taesdxl",
+                                                       torch_dtype=torch.float16
+                                                       )
+            
             self.vae.eval()
             self.vae.to(self.args.device)
             for param in self.vae.parameters():
                 param.requires_grad = False
-            self.processor = lambda x: self.vae.decode(x / self.vae.config.scaling_factor, return_dict=False, generator=self.generator)[0]
+            def decode(x):
+                x = self.vae.decode(x / self.vae.config.scaling_factor, return_dict=False, generator=self.generator)[0]
+                x = (x + 1) / 2
+                x = torch.clamp(x, 0, 1)
+                return x
+            # self.processor = lambda x: self.vae.decode(x / self.vae.config.scaling_factor, return_dict=False, generator=self.generator)[0]
+            self.processor = decode
         else:
             self.processor = lambda x: x
 
@@ -69,6 +82,19 @@ class BaseGuider:
                 guider = AduioDeclippingGuidance(self.args)
             elif task == 'audio_inpainting':
                 guider = AduioInpaintingGuidance(self.args)
+            elif task == "ocr":
+                guider = OCRGuider(self.args)
+            elif task == 'image_reward':
+                from tasks.image_reward import ImageRewardGuider
+                guider = ImageRewardGuider(self.args)
+            elif task == 'blip_vqa':
+                guider = BLIPGuider(self.args)
+            elif task == 'unidet':
+                from tasks.unidet import UniDetGuider
+                guider = UniDetGuider(self.args)
+            elif task == 'clip_score':
+                from tasks.clip_score import CLIPGuider
+                guider = CLIPGuider(self.args)
             else:
                 raise NotImplementedError
             
@@ -81,6 +107,9 @@ class BaseGuider:
 
         if self.get_guidance is None:
             raise ValueError(f"Unknown guider: {self.args.guider}")
+        
+        if hasattr(guider, 'set_prompt'):
+            self.set_prompt = guider.set_prompt
     
     def _get_combined_guidance(self, x, guiders, *args, **kwargs):
         values = []

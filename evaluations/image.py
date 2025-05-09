@@ -163,7 +163,7 @@ class ImageEvaluator(BaseEvaluator):
             
             image_embed = torch.concat(image_embed, dim=0)
             diff = (image_embed - target_embed).reshape(image_embed.size(0), -1)
-            similarity_list.append(-(diff ** 2).sum(dim=1).sqrt() / 10)
+            similarity_list.append((diff ** 2).sum(dim=1).sqrt() / 100)
 
         return torch.cat(similarity_list, dim=0).mean().item()
 

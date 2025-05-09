@@ -6,11 +6,11 @@ from transformers import HfArgumentParser
 from .configs import Arguments
 
 from evaluations.image import ImageEvaluator
-from evaluations.molecule import MoleculeEvaluator
-from evaluations.audio import AudioEvaluator
+# from evaluations.molecule import MoleculeEvaluator
+# from evaluations.audio import AudioEvaluator
 
-from diffusion.ddim import ImageSampler, MoleculeSampler
-from diffusion.audio_diffusion import AudioDiffusionSampler
+# from diffusion.ddim import ImageSampler, MoleculeSampler
+# from diffusion.audio_diffusion import AudioDiffusionSampler
 from diffusion.stable_diffusion import StableDiffusionSampler
 
 from methods.mpgd import MPGDGuidance
@@ -30,22 +30,31 @@ def get_logging_dir(arg_dict: dict):
     if arg_dict['guidance_name'] == 'tfg':
         # record rho, mu, sigma with scheduler
         suffix = f"rho={arg_dict['rho']}-{arg_dict['rho_schedule']}+mu={arg_dict['mu']}-{arg_dict['mu_schedule']}+sigma={arg_dict['sigma']}-{arg_dict['sigma_schedule']}"
+    elif arg_dict['guidance_name'] == 'bfs':
+        suffix = "particles=" + str(arg_dict['per_sample_batch_size']) + "+temp=" + str(arg_dict['temp']) + 'start_step=' + str(arg_dict['start_step']) + '+step_size=' + str(arg_dict['step_size']) 
+    elif arg_dict['guidance_name'] == 'dfs':
+        suffix = "recur_depth=" + str(arg_dict['recur_depth']) + "+budget=" + str(arg_dict['budget']) + "+threshold=" + str(arg_dict['threshold']) + "resample_steps=" + str(arg_dict['resample_steps'])
+    elif arg_dict['guidance_name'] == 'bon':
+        suffix = "particles=" + str(arg_dict['per_sample_batch_size']) + "num_sample=" + str(arg_dict['num_samples']) 
     else:
-        suffix = "guidance_strength=" + str(arg_dict['guidance_strength'])
-    
+        suffix = ''
+
     return os.path.join(
         arg_dict['logging_dir'],
-        f"guidance_name={arg_dict['guidance_name']}+recur_steps={arg_dict['recur_steps']}+iter_steps={arg_dict['iter_steps']}",
+        "dataset=" + arg_dict['dataset'].replace(" ", "_"),
+        # f"guidance_name={arg_dict['guidance_name']}+recur_steps={arg_dict['recur_steps']}+iter_steps={arg_dict['iter_steps']}",
         "model=" + arg_dict['model_name_or_path'].replace("/", '_'),
-        "guide_net=" + arg_dict['guide_network'].replace('/', '_'),
-        "target=" + str(arg_dict['target']).replace(" ", "_"),
+        f"guidance_name={arg_dict['guidance_name']}",
+        # "guide_net=" + arg_dict['guide_network'].replace('/', '_'),
+        # "target=" + str(arg_dict['target']).replace(" ", "_"),
         suffix,
     )
 
-def get_config(add_logger=True) -> Arguments:
-    args = HfArgumentParser([Arguments]).parse_args_into_dataclasses()[0]
+def get_config(add_logger=True,args=None) -> Arguments:
+    if args is None:
+        args = HfArgumentParser([Arguments]).parse_args_into_dataclasses()[0]
     args.device = torch.device(args.device)
-
+    
     if add_logger:
         from logger import setup_logger
         args.logging_dir = get_logging_dir(vars(args))
