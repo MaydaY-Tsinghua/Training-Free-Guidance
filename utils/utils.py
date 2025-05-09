@@ -35,8 +35,8 @@ def get_logging_dir(arg_dict: dict):
     
     if arg_dict['guidance_name'] == "bfs":
         suffix1 = f"rho={arg_dict['rho']}-{arg_dict['rho_schedule']}+mu={arg_dict['mu']}-{arg_dict['mu_schedule']}+sigma={arg_dict['sigma']}-{arg_dict['sigma_schedule']}"
-        suffix2 = f"start={str(arg_dict['start'])}+step_size={str(arg_dict['step_size'])}",
-        suffix3 = f"particles={str(arg_dict['per_sample_batch_size'])}+temp={str(arg_dict['temp'])}",
+        suffix2 = f"start={arg_dict['start']}+step_size={arg_dict['step_size']}"
+        suffix3 = f"particles={arg_dict['per_sample_batch_size']}+temp={arg_dict['temp']}"
         suffix = f"{suffix1}/{suffix2}/{suffix3}"
     
     return os.path.join(
@@ -44,6 +44,7 @@ def get_logging_dir(arg_dict: dict):
         f"guidance_name={arg_dict['guidance_name']}+recur_steps={arg_dict['recur_steps']}+iter_steps={arg_dict['iter_steps']}",
         "model=" + arg_dict['model_name_or_path'].replace("/", '_'),
         "guide_net=" + arg_dict['guide_network'].replace('/', '_'),
+        "bon_guidance=" + arg_dict['bon_guidance'].replace('/', '_'),
         "target=" + str(arg_dict['target']).replace(" ", "_"),
         suffix,
     )

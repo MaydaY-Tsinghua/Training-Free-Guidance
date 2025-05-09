@@ -14,7 +14,7 @@
 # module load python/3.8 cuda/11.7  (example)
 
 # Set CUDA device (optional, Slurm will often handle this)
-# export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=1,
 
 # Parameters
 data_type=image
@@ -33,7 +33,7 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=2
+per_sample_batch_size=4
 num_samples=256
 logging_resolution=512
 guidance_name='bfs'
