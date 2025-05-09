@@ -29,7 +29,7 @@ if __name__ == '__main__':
     pipeline = BasePipeline(args, network, guider, evaluator, bon_guider=bon_guider)
 
     samples = pipeline.sample(args.num_samples)
-    logger.log_samples(samples)
+    # logger.log_samples(samples)
     
     # release torch occupied gpu memory
     torch.cuda.empty_cache()
