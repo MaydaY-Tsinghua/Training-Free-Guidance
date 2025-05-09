@@ -1,0 +1,14 @@
+*/**sample*/
+*log*
+*.png
+*.pt
+*.pth
+*.json
+*.yaml
+*.txt
+*/dataset*/
+*.csv
+*test*
+*/__pycache__/*
+**/*.pyc
+

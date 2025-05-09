@@ -1,7 +1,13 @@
+import os
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
 
 from models.med import BertConfig, BertModel, BertLMHeadModel
 from models.blip import create_vit, init_tokenizer, load_checkpoint
-
+sys.path.pop(0)
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -11,7 +17,7 @@ import numpy as np
 
 class BLIP_VQA(nn.Module):
     def __init__(self,
-                 med_config='configs/med_config.json',  # todo
+                 med_config='/datapool/data2/home/linhw/zhangxiangcheng/DiffTTS/T2I/TFG/T2I-CompBench/BLIPvqa_eval/configs/med_config.json',  # todo
                  image_size=480,
                  vit='base',
                  vit_grad_ckpt=False,
@@ -36,7 +42,7 @@ class BLIP_VQA(nn.Module):
         decoder_config = BertConfig.from_json_file(med_config)
         self.text_decoder = BertLMHeadModel(config=decoder_config)
 
-    def forward(self, image, question, answer=None, n=None, weights=None, train=True, inference='rank', k_test=128):
+    def forward(self, image, question, answer=None, n=None, weights=None, train=True, inference='rank', k_test=128, output_type='str'):
 
         image_embeds = self.visual_encoder(image)
         image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(image.device)
@@ -121,10 +127,13 @@ class BLIP_VQA(nn.Module):
                 answer_prob = []
                 probs = self.vqa_prob(question_output.last_hidden_state, question.attention_mask,
                                       )
-                for p in probs:
-                    answer = '{:.4f}'.format(p)
-                    answer_prob.append(str(answer))
-                return answer_prob
+                if output_type == 'str':
+                    for p in probs:
+                        answer = '{:.4f}'.format(p)
+                        answer_prob.append(str(answer))
+                    return answer_prob
+                elif output_type == 'pt':
+                    return probs
 
                 return answer_prob
 

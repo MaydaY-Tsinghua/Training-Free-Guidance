@@ -22,6 +22,7 @@ class Dataset(Dataset):
 
         data_images = os.path.join(data_path, "samples")
         data_imgs = os.listdir(data_images)
+        data_imgs = [img for img in data_imgs if img.endswith('.png')]
         data_imgs.sort(key=lambda x: int(x.split("_")[1].split('.')[0]))  # sort according to file number
         self.data_list = [os.path.join(data_images,data) for data in data_imgs]
 
@@ -41,7 +42,6 @@ class Dataset(Dataset):
         image = self.transform(image)
         image = np.array(image)[:, :, ::-1]
         image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
-
         img_size = image.shape
         return {"image": image, "height": img_size[1], "width": img_size[2],
                 "true_height": true_img_size[0], "true_width": true_img_size[1],

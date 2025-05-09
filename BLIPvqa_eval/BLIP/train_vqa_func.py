@@ -26,14 +26,18 @@ from torch.utils.data import DataLoader
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import sys
-sys.path.append("..") 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+blip_utils_path = os.path.join(current_dir, "../")  # Adjust this path if needed
+sys.path.insert(0, blip_utils_path)
+if "utils" in sys.modules:
+    del sys.modules["utils"]
 from models.blip_vqa import blip_vqa
 import utils
 from utils import cosine_lr_schedule
 from data import create_dataset, create_sampler, create_loader
 from data.vqa_dataset import vqa_collate_fn
 from data.utils import save_result
-
+sys.path.pop(0)
 
 def train(model, data_loader, optimizer, epoch, device):
     # train
@@ -191,7 +195,7 @@ def VQA(evaluate, device, seed, distributed, config, result_dir, output_dir):
 
 
 def VQA_main(ann_root,output_dir,inference='vqa_prob'): #annotation path, output path
-    config = 'configs/vqa.yaml' #todo config file
+    config = '/datapool/data2/home/linhw/zhangxiangcheng/DiffTTS/T2I/TFG/T2I-CompBench/BLIPvqa_eval/configs/vqa.yaml' #todo config file
     evaluate = True
     device = 'cuda'
     seed = 42

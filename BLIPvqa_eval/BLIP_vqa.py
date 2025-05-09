@@ -11,13 +11,14 @@ from tqdm.auto import tqdm
 import sys
 import spacy
 
-from BLIP.train_vqa_func import VQA_main
+from BLIPvqa_eval.BLIP.train_vqa_func import VQA_main
 
 def Create_annotation_for_BLIP(image_folder, outpath, np_index=None):
     nlp = spacy.load("en_core_web_sm")
 
     annotations = []
     file_names = os.listdir(image_folder)
+    file_names = [file_name for file_name in file_names if file_name.endswith('.png')]
     file_names.sort(key=lambda x: int(x.split("_")[-1].split('.')[0]))#sort
 
 
@@ -71,8 +72,7 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def main():
-    args = parse_args()
+def main(args):
     np_index = args.np_num #how many noun phrases
 
     answer = []
@@ -125,7 +125,9 @@ def main():
     with open(f"{out_dir}/annotation{order}/blip_vqa_score.txt", "w") as file:
         file.write("BLIP-VQA score:"+str(reward_after/len(r)))
 
+    return reward_after/len(r)
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args)

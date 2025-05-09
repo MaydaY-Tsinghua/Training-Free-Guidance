@@ -23,7 +23,7 @@ MULTI_DATASET:
   NUM_CLASSES: [365, 80, 500, 37]
   DATA_RATIO: [1, 1, 1, 1]
   USE_CAS: [True, False, True, False]
-  UNIFIED_LABEL_FILE: 'datasets/label_spaces/learned_mAP+M.json'
+  UNIFIED_LABEL_FILE: '/datapool/data2/home/linhw/zhangxiangcheng/DiffTTS/T2I/TFG/T2I-CompBench/UniDet_eval/experts/obj_detection/datasets/label_spaces/learned_mAP+M.json'
   # MATCH_NOVEL_CLASSES_FILE: 'datasets/label_spaces/mAP_val+M_722_4d_labelmap_test.json'
   # UNIFIED_EVAL: True
   # UNIFIED_NOVEL_CLASSES_EVAL: True

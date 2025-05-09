@@ -1,6 +1,6 @@
 
 import os
-
+import sys
 import torch
 import json
 import argparse
@@ -11,14 +11,17 @@ try:
 except ModuleNotFoundError:
     import ruamel.yaml as yaml
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 from experts.model_bank import load_expert_model
 from experts.obj_detection.generate_dataset import Dataset, collate_fn
+sys.path.pop(0)
 from accelerate import Accelerator
 from tqdm import tqdm
 import spacy
 import numpy as np
 
-obj_label_map = torch.load('dataset/detection_features.pt')['labels']
+obj_label_map = torch.load(f'{current_dir}/dataset/detection_features.pt')['labels']
 
 def determine_position(locality, box1, box2, iou_threshold=0.1,distance_threshold=150):
     # Calculate centers of bounding boxes
@@ -119,12 +122,11 @@ def parse_args():
     return args
 
 
-def main():
-    args = parse_args()
+def main(args):
     model, transform = load_expert_model(task='obj_detection', ckpt="RS200")
     accelerator = Accelerator(mixed_precision='fp16')
 
-    config = yaml.load(open('configs/experts.yaml', 'r'), Loader=yaml.Loader)
+    config = yaml.load(open(f'{current_dir}/configs/experts.yaml', 'r'), Loader=yaml.Loader)
     outpath = args.outpath
     data_path= outpath
     save_path= f'{outpath}/labels'
@@ -290,9 +292,84 @@ def main():
         # save mapping
         with open(os.path.join(im_save_path, 'mapping.json'), 'w') as f:
             json.dump(map_result, f)
+        
+        return avg_score/len(result)
+
+def get_spatial_score_from_prompt_and_pred(prompt, test_pred):
+    total_scores = []
+    for k in range(len(test_pred)):
+        instance_boxes = test_pred[k]['instances'].get_fields()['pred_boxes'].tensor  # get the bbox of list
+        instance_id = test_pred[k]['instances'].get_fields()['pred_classes']
+        depth = torch.zeros((479,479), device=test_pred[k]['instances'].get_fields()['pred_classes'].device)  # dummy depth
+
+        # get score
+        instance_score = test_pred[k]['instances'].get_fields()['scores']
+
+        obj_bounding_box, obj_labels_dict = get_mask_labels(depth, instance_boxes, instance_id)
+
+        obj = []  
+        for i in range(len(obj_bounding_box)):
+            obj_name = obj_label_map[obj_labels_dict[i]]  
+            obj.append(obj_name)
+
+
+        
+        vocab_spatial = ['on side of', 'next to', 'near', 'on the left of', 'on the right of', 'on the bottom of', 'on the top of','on top of'] #locality words
+
+        locality = None
+        for word in vocab_spatial:
+            if word in prompt:
+                locality = word
+                break
+
+        #for simple structure
+        nlp = spacy.load("en_core_web_sm")
+        doc = nlp(prompt)
+        obj1= [token.text for token in doc if token.pos_=='NOUN'][0]
+        obj2= [token.text for token in doc if token.pos_=='NOUN'][-1]
+
+
+        person = ['girl','boy','man','woman']
+        if obj1 in person:
+            obj1 = "person"
+        if obj2 in person:
+            obj2 = "person"
+        if obj1 in obj and obj2 in obj:
+            obj1_pos = obj.index(obj1)
+            obj2_pos = obj.index(obj2)
+            obj1_bb = obj_bounding_box[obj1_pos]
+            obj2_bb = obj_bounding_box[obj2_pos]
+            box1, box2={},{}
+
+            box1["x_min"] = obj1_bb[0]
+            box1["y_min"] = obj1_bb[1]
+            box1["x_max"] = obj1_bb[2]
+            box1["y_max"] = obj1_bb[3]
+            box2["x_min"] = obj2_bb[0]
+            box2["y_min"] = obj2_bb[1]
+            box2["x_max"] = obj2_bb[2]
+            box2["y_max"] = obj2_bb[3]
+
+
+            score = 0.25 * instance_score[obj1_pos].item() + 0.25 * instance_score[obj2_pos].item()  # score = avg across two objects score
+            score += determine_position(locality, box1, box2) / 2
+        elif obj1 in obj:
+            obj1_pos = obj.index(obj1)  
+            score = 0.25 * instance_score[obj1_pos].item()
+        elif obj2 in obj:
+            obj2_pos = obj.index(obj2)
+            score = 0.25 * instance_score[obj2_pos].item()
+        else:
+            score = 0
+        # if (score<0.5):
+        #     score=0
+        total_scores.append(score)
+    return total_scores
+        
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args)
 
 
 

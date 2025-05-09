@@ -1,5 +1,5 @@
 import os
-
+import sys
 import torch
 import json
 import argparse
@@ -10,17 +10,19 @@ try:
 except ModuleNotFoundError:
     import ruamel.yaml as yaml
 # import spacy_universal_sentence_encoder
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 from experts.model_bank import load_expert_model
 from experts.obj_detection.generate_dataset import Dataset, collate_fn
 from accelerate import Accelerator
 from tqdm import tqdm
 import spacy
 import numpy as np
+sys.path.pop(0)
+obj_label_map = torch.load(f'{current_dir}/dataset/detection_features.pt')['labels']
 
-obj_label_map = torch.load('dataset/detection_features.pt')['labels']
 
-
-with open("../examples/dataset/new_objects.txt", "r") as f:
+with open(f"{current_dir}/../examples/dataset/new_objects.txt", "r") as f:
     objects = f.read().splitlines()
     object_s, object_p = [obj.split(" - ")[0].strip().lower() for obj in objects], [obj.split(" - ")[1].strip().lower() for obj in objects]
 
@@ -78,8 +80,7 @@ def parse_args():
     return args
 
 
-def main():
-    args = parse_args()
+def main(args):
     model, transform = load_expert_model(task='obj_detection', ckpt="R50")
     accelerator = Accelerator(mixed_precision='fp16')
 
@@ -109,7 +110,8 @@ def main():
             for k in range(len(test_pred)):
                 instance_boxes = test_pred[k]['instances'].get_fields()['pred_boxes'].tensor  # get the bbox of list
                 instance_id = test_pred[k]['instances'].get_fields()['pred_classes']
-                depth = test_data[k]['image'][0]
+                # depth = test_data[k]['image'][0]
+                depth = torch.zeros((479,479),device=test_pred[k]['instances'].get_fields()['pred_classes'].device)  # Placeholder for depth
 
                 obj_bounding_box, obj_labels_dict = get_mask_labels(depth, instance_boxes, instance_id)
 
@@ -185,7 +187,7 @@ def main():
                             score += 0.5* weight
                 
                 from copy import copy
-                score_map.append({"question_id": int(img_path_split[-1].split(".png")[0].split("_")[1]), "answer": score})
+                score_map.append({"question_id": int(img_path_split[-1].split(".png")[0].split("_")[1]), "answer": score, "prompt": prompt})
                 cnt += 1
                 total_score += score
     
@@ -196,10 +198,99 @@ def main():
 
         with open(os.path.join(p, 'score.txt'), 'w') as f:
             f.write(f"total:{total_score} num:{cnt} avg:{str(total_score / cnt)}")
+        return total_score / cnt
+
+
+
+def score_with_prompt_and_pred(prompt, test_pred):
+    score_map = []
+    for k in range(len(test_pred)):
+        instance_boxes = test_pred[k]['instances'].get_fields()['pred_boxes'].tensor  # get the bbox of list
+        instance_id = test_pred[k]['instances'].get_fields()['pred_classes']
+        # depth = test_data[k]['image'][0]
+        depth = torch.zeros((479,479),device=test_pred[k]['instances'].get_fields()['pred_classes'].device)  # Placeholder for depth
+
+        obj_bounding_box, obj_labels_dict = get_mask_labels(depth, instance_boxes, instance_id)
+
+        obj = []  
+        for i in range(len(obj_bounding_box)):
+            obj_name = obj_label_map[obj_labels_dict[i]]  
+            obj.append(obj_name)
+        new_obj = []
+        new_bbox = []
+        for i in range(len(obj)):
+            flag = 0
+            for j in range(len(new_obj)):
+                if calculate_iou(obj_bounding_box[i], new_bbox[j]) and obj[i] == new_obj[j]:
+                    flag = 1
+                    break
+            if flag == 0:
+                new_obj.append(obj[i])
+                new_bbox.append(obj_bounding_box[i])
+
+        nlp = spacy.load('en_core_web_sm')
+        doc = nlp(prompt)
+        number = ["a", "an", "one", "two", "three", "four", "five", "six", "seven", "eight"]
+        num_obj = []
+        my_obj = []
+        for i in range(len(doc)):
+            if doc[i].text in number:
+                if (i < len(doc) - 2) and (doc[i+1].text + " " + doc[i+2].text in object_s or doc[i+1].text + " " + doc[i+2].text in object_p):
+                    if doc[i+1].text + " " + doc[i+2].text in object_p and doc[i].text not in ["a", "an", "one"]:
+                        my_obj.append(object_s[object_p.index(doc[i+1].text + " " + doc[i+2].text)])
+                        try:
+                            num_obj.append(w2n.word_to_num(doc[i].text))
+                        except:
+                            pass
+                    else:
+                        num_obj.append(1)
+                        my_obj.append(doc[i+1].text + " " + doc[i+2].text)
+                elif doc[i+1].text in object_s or doc[i+1].text in object_p:
+                    if doc[i+1].text in object_s and doc[i].text in ["a", "an", "one"]:
+                        num_obj.append(1)
+                        my_obj.append(doc[i+1].text)
+                    else:
+                        my_obj.append(object_s[object_p.index(doc[i+1].text)])
+                        try:
+                            num_obj.append(w2n.word_to_num(doc[i].text))
+                        except:
+                            pass
+        score = 0
+        weight = 1.0 / len(my_obj)             
+        for i, my_obj_i in enumerate(my_obj):
+            if my_obj_i in ["boy", "girl", "man", "woman"]:
+                my_obj_i = "person"
+            if my_obj_i == "ship":
+                my_obj_i = "boat"
+            if my_obj_i == "telivision":
+                my_obj_i = "tv"
+            if my_obj_i == "goldfish":
+                my_obj_i = "fish"
+            if my_obj_i == "painting":
+                my_obj_i = "picture"
+
+            if my_obj_i not in new_obj:
+                for j, obj_i in enumerate(new_obj):
+                    if my_obj_i in obj_i:
+                        new_obj[j] = my_obj_i
+
+            if my_obj_i in new_obj:
+                score += 0.5* weight
+                num_det = new_obj.count(my_obj_i)
+                if num_det == num_obj[i]:
+                    score += 0.5* weight
+        
+        from copy import copy
+        score_map.append(score)
+    
+    return score_map
+
+
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args)
 
 
 

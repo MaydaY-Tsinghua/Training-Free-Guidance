@@ -38,8 +38,7 @@ def parse_args():
 
 
 
-def main():
-    args = parse_args()
+def main(args):
 
     outpath=args.outpath
 
@@ -110,7 +109,10 @@ def main():
         f.write('score avg:'+str(score/len(sim_dict)))
     print("score avg:", score/len(sim_dict))
 
+    return score/len(sim_dict)
+
 if __name__ == "__main__":
+    args = parse_args()
     main()
 
 
