@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=prune_444_t0.5             # Job name
+#SBATCH --job-name=prune_444_16            # Job name
 #SBATCH -o status/myoutput_%j.out  # File to which STDOUT will be written, %j inserts jobid
 #SBATCH -e status/myerrors_%j.err  # File to which STDERR will be written, %j inserts jobid
 #SBATCH --ntasks=1
@@ -14,7 +14,7 @@
 # module load python/3.8 cuda/11.7  (example)
 
 # Set CUDA device (optional, Slurm will often handle this)
-export CUDA_VISIBLE_DEVICES=2,
+# export CUDA_VISIBLE_DEVICES=2,
 
 # Parameters
 data_type=image
@@ -33,7 +33,7 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=12
+per_sample_batch_size=16
 num_samples=256
 logging_resolution=512
 guidance_name='bfs-prune'
