@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --gres=gpu:nvidia_a100-sxm4-80gb:1                    # Request 1 GPU
 #SBATCH --mem=20G                       # Memory
-#SBATCH --time=8:00:00                 # Max runtime
+#SBATCH --time=12:00:00                 # Max runtime
 #SBATCH --partition=gpu                 # Adjust to your cluster
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=504985967@qq.com
