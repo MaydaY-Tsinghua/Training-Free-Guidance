@@ -49,7 +49,7 @@ iter_steps=4
 
 start=25
 step_size=25
-temp=0.5
+temp=0.2
 
 # Run
 python main.py \
