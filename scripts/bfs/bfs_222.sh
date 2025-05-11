@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=tfg_222              # Job name
+#SBATCH --job-name=bo12_222              # Job name
 #SBATCH -o status/myoutput_%j.out  # File to which STDOUT will be written, %j inserts jobid
 #SBATCH -e status/myerrors_%j.err  # File to which STDERR will be written, %j inserts jobid
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --gres=gpu:nvidia_a100-sxm4-80gb:1                    # Request 1 GPU
 #SBATCH --mem=20G                       # Memory
-#SBATCH --time=3:00:00                 # Max runtime
+#SBATCH --time=16:00:00                 # Max runtime
 #SBATCH --partition=gpu                 # Adjust to your cluster
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=504985967@qq.com
@@ -14,7 +14,7 @@
 # module load python/3.8 cuda/11.7  (example)
 
 # Set CUDA device (optional, Slurm will often handle this)
-# export CUDA_VISIBLE_DEVICES=0,
+# export CUDA_VISIBLE_DEVICES=6,
 
 # Parameters
 data_type=image
@@ -33,7 +33,7 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=2
+per_sample_batch_size=12
 num_samples=256
 logging_resolution=512
 guidance_name='bfs'
