@@ -93,7 +93,7 @@ class BFSGuidance(BaseGuidance):
     ) -> torch.Tensor:
         alpha_prod_t = alpha_prod_ts[t]
         alpha_prod_t_prev = alpha_prod_t_prevs[t]
-        bon_guider = kwargs.get('bon_guider', None)
+        global_guider = kwargs.get('global_guider', None)
         rho = self.get_rho(t, alpha_prod_ts, alpha_prod_t_prevs)
         mu = self.get_mu(t, alpha_prod_ts, alpha_prod_t_prevs)
         std = self.get_std(t, alpha_prod_ts, alpha_prod_t_prevs)
@@ -101,7 +101,7 @@ class BFSGuidance(BaseGuidance):
         i = t     # i is in index space
         t = ts[t]   # convert from int space to tensor space
         for recur_step in range(self.args.recur_steps):
-            chunked_x = x.chunk(2) if x.shape[0] > 8 else [x,]
+            chunked_x = x.chunk(2) if x.shape[0] > 8 else [x,]  # chunked forward to avoid OOM
             x0_list = []
             x_prev_list = []
             x_list = []
@@ -149,13 +149,13 @@ class BFSGuidance(BaseGuidance):
             x = torch.cat(x_list, dim=0)
 
         if i in self.resampling_steps() and temp > 0:
-            if bon_guider:
-                logprobs = bon_guider.guider.get_guidance(x0, return_logp=True, check_grad=False, **kwargs)
+            if global_guider:
+                logprobs = global_guider.guider.get_guidance(x0, return_logp=True, check_grad=False, **kwargs)
             else:
                 logprobs = self.guider.get_guidance(x0, return_logp=True, check_grad=False, **kwargs)
             num_children = x.shape[0] * torch.softmax(logprobs * temp, dim=0)
             num_children = torch.round(num_children).long()
-            ## rebase
+            ## resampling
             if self.args.guidance_name == 'bfs-resample':
                 resampled_indices = torch.repeat_interleave(
                     torch.arange(x.shape[0], device=x.device), num_children
@@ -167,8 +167,8 @@ class BFSGuidance(BaseGuidance):
 
 
         if i == len(ts) - 1:
-            if bon_guider:
-                logprobs = bon_guider.guider.get_guidance(x_prev, return_logp=True, check_grad=False, **kwargs)
+            if global_guider:
+                logprobs = global_guider.guider.get_guidance(x_prev, return_logp=True, check_grad=False, **kwargs)
             else:
                 logprobs = self.guider.get_guidance(x_prev, return_logp=True, check_grad=False, **kwargs)
             x_prev = x_prev[torch.argmax(logprobs, dim=0)].unsqueeze(0)

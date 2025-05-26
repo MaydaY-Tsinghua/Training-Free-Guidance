@@ -96,9 +96,8 @@ class Arguments:
     output_path: str = field(default='vis_molecule')
     max_n_samples: int = field(default=10000000000)
     
-    # bon
-    bon_rate: int = field(default=1)
-    bon_guidance: str = field(default=None)
+    # double verifier
+    global_verifier: str = field(default=None)
 
     # bfs
     start: int = field(default=25)

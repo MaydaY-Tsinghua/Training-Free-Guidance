@@ -15,45 +15,30 @@ class BasePipeline(object):
                  network: BaseSampler, 
                  guider: BaseGuidance, 
                  evaluator: BaseEvaluator,
-                 bon_guider=None):
+                 global_verifier=None):
         self.network = network
         self.guider = guider
         self.evaluator = evaluator
         self.logging_dir = args.logging_dir
         self.check_done = args.check_done
         
-        self.bon_rate = args.bon_rate
         self.batch_size = args.eval_batch_size
         
-        # 初始化 logp_guider，如果没有提供则使用默认的 guider
-        self.bon_guider = bon_guider if bon_guider is not None else self.guider
+        # init global verifier for double verifier
+        self.global_verifier = global_verifier if global_verifier is not None else self.guider
         
     @abstractmethod
     def sample(self, sample_size: int):
         
-        samples = self.check_done_and_load_sample()
+        load_samples = self.check_done_and_load_sample()
+        if load_samples is not None:
+            logger.log("Loaded samples from previous run.")
+            samples, compute = load_samples
+        else:
+            samples, compute = None, {'compute': 0}
         
         if samples is None:
-
-            # guidance_batch_size = self.batch_size  
-
-            samples, compute = self.network.sample(sample_size=sample_size * self.bon_rate, guidance=self.guider, bon_guider=self.bon_guider)
-
-            # logp_list = []
-            # for i in range(0, samples.shape[0], guidance_batch_size):
-            #     batch_samples = samples[i:i + guidance_batch_size]
-            #     breakpoint()
-            #     batch_logp = self.bon_guider.guider.get_guidance(batch_samples, return_logp=True, check_grad=False)
-            #     logp_list.append(batch_logp)
-            # breakpoint()
-            # logp = torch.cat(logp_list, dim=0).view(-1)
-
-            # samples = samples.view(sample_size, int(self.bon_rate), *samples.shape[1:])
-            # logp = logp.view(sample_size, int(self.bon_rate))
-
-            # idx = logp.argmax(dim=1)
-            # samples = samples[torch.arange(sample_size), idx]
-
+            samples, compute = self.network.sample(sample_size=sample_size, guidance=self.guider, global_verifier=self.global_verifier)
             samples = self.network.tensor_to_obj(samples)
                     
         return samples, compute

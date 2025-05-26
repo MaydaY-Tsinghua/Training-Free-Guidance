@@ -54,7 +54,7 @@ class ImageSampler(BaseSampler):
     
 
     @torch.no_grad()
-    def sample(self, sample_size: int, guidance: BaseGuidance, bon_guider:BaseGuidance=None):
+    def sample(self, sample_size: int, guidance: BaseGuidance, global_verifier:BaseGuidance=None):
         
         tot_samples = []
         tot_compute = 0
@@ -80,7 +80,7 @@ class ImageSampler(BaseSampler):
                     self.alpha_prod_ts, 
                     self.alpha_prod_t_prevs,
                     self.eta,
-                    bon_guider=bon_guider,
+                    global_guider=global_verifier,
                 )
 
                 # we may want to log some trajs

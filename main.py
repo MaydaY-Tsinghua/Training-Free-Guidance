@@ -15,10 +15,10 @@ if __name__ == '__main__':
     guider = get_guidance(args, network)
     
     bon_guider = None
-    if hasattr(args, 'bon_guidance') and args.bon_guidance:
-        bon_args = deepcopy(args)
-        bon_args.guide_networks = args.bon_guidance.split('+')
-        bon_guider = get_guidance(bon_args, network)
+    if hasattr(args, 'global_verifier') and args.global_verifier:
+        global_args = deepcopy(args)
+        global_args.guide_networks = args.global_verifier.split('+')
+        global_verifier = get_guidance(global_args, network)
     
     # evaluator for generated samples
     try:
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     except NotImplementedError:
         evaluator = None
 
-    pipeline = BasePipeline(args, network, guider, evaluator, bon_guider=bon_guider)
+    pipeline = BasePipeline(args, network, guider, evaluator, global_verifier=global_verifier)
 
     samples,compute = pipeline.sample(args.num_samples)
     logger.log_samples(samples)

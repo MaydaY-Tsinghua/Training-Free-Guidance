@@ -52,4 +52,13 @@ class ImageLogger(BaseLogger):
     def load_samples(self, fname='images'):
 
         npy = np.load(os.path.join(self.logging_dir, f"{fname}.npy"))
-        return [Image.fromarray(img) for img in npy]
+        import json
+        try:
+            with open(os.path.join(self.logging_dir, f"metrics.json"), 'r') as f:
+                metrics = json.load(f)
+                compute = metrics.get('compute', 0)
+        except (FileNotFoundError, json.JSONDecodeError):
+            compute = 0
+        if compute != 0:
+            self.log(f"Loaded compute: {compute}")
+        return [Image.fromarray(img) for img in npy], {'compute': compute}

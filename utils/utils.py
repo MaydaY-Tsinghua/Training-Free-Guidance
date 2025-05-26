@@ -43,8 +43,8 @@ def get_logging_dir(arg_dict: dict):
         arg_dict['logging_dir'],
         f"guidance_name={arg_dict['guidance_name']}+recur_steps={arg_dict['recur_steps']}+iter_steps={arg_dict['iter_steps']}",
         "model=" + arg_dict['model_name_or_path'].replace("/", '_'),
-        "guide_net=" + arg_dict['guide_network'].replace('/', '_'),
-        "bon_guidance=" + arg_dict['bon_guidance'].replace('/', '_'),
+        "verifier=" + arg_dict['guide_network'].replace('/', '_'),
+        "global_verifier=" + arg_dict['global_verifier'].replace('/', '_'),
         "target=" + str(arg_dict['target']).replace(" ", "_"),
         suffix,
     )
