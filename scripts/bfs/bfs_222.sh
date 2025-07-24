@@ -24,7 +24,7 @@ model_name_or_path='models/openai_imagenet.pt'
 
 task=label_guidance
 guide_network='google/vit-base-patch16-224'
-bon_guidance="google/vit-base-patch16-384"
+bon_guidance="google/vit-base-patch16-224"
 target=222
 
 train_steps=1000
@@ -33,7 +33,7 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=12
+per_sample_batch_size=1
 num_samples=256
 logging_resolution=512
 guidance_name='bfs'
@@ -42,10 +42,11 @@ eval_batch_size=32
 wandb=False
 
 rho=0.2
-mu=0.4
+mu=0.2
 sigma=0.1
 eps_bsz=1
 iter_steps=4
+recur_steps=1
 
 start=25
 step_size=25
@@ -65,6 +66,7 @@ python main.py \
     --inference_steps $inference_steps \
     --target $target \
     --iter_steps $iter_steps \
+    --recur_steps $recur_steps \
     --eta $eta \
     --clip_x0 $clip_x0 \
     --rho $rho \

@@ -170,8 +170,8 @@ class ImageEvaluator(BaseEvaluator):
     @torch.no_grad()
     def _compute_fid(self, samples, dataset, target):
 
-        ref_images = load_image_dataset(dataset, num_samples=-1, target=target, return_tensor=False)
-
+        # ref_images = load_image_dataset(dataset, num_samples=-1, target=target, return_tensor=False)
+        ref_images = f"stats/imagenet-1k-fid-stats-{target[0]}.pt"
         fid = calculate_fid(ref_images, samples, self.args.eval_batch_size, self.args.device)
 
         return fid
@@ -189,9 +189,9 @@ class ImageEvaluator(BaseEvaluator):
 
         # we only allow combined guidance within the same dataset
         if self.args.dataset in ['imagenet', 'cifar10', 'cat']:
-            # fid = self._compute_fid(samples, self.args.dataset, self.args.targets)
-            # metrics['fid'] = fid
-            print("skip fid")
+            fid = self._compute_fid(samples, self.args.dataset, self.args.targets)
+            metrics['fid'] = fid
+            # print("skip fid")
 
         
         if self.args.dataset in ['celebahq']:

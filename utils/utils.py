@@ -38,6 +38,8 @@ def get_logging_dir(arg_dict: dict):
         suffix2 = f"start={arg_dict['start']}+step_size={arg_dict['step_size']}"
         suffix3 = f"particles={arg_dict['per_sample_batch_size']}+temp={arg_dict['temp']}"
         suffix = f"{suffix1}/{suffix2}/{suffix3}"
+        if 'cg' in arg_dict['guidance_name']:
+            suffix += f"+guidance_stength={arg_dict['guidance_strength']}"
     
     return os.path.join(
         arg_dict['logging_dir'],
@@ -119,11 +121,14 @@ def get_guidance(args, network):
         return LGDGuidance(args, noise_fn=noise_fn)
     elif "tfg" in args.guidance_name:
         return TFGGuidance(args, noise_fn=noise_fn)
-    elif 'cg' in args.guidance_name:
+    elif 'cg' == args.guidance_name:
         return ClassifierGuidance(args, noise_fn=noise_fn)
-    elif 'bfs' in args.guidance_name:
+    elif 'bfs' in args.guidance_name and 'cg' not in args.guidance_name:
         from methods.bfs import BFSGuidance
         return BFSGuidance(args, noise_fn=noise_fn)
+    elif 'bfs-cg' == args.guidance_name:
+        from methods.bfs_cg import BFSCGGuidance
+        return BFSCGGuidance(args, noise_fn=noise_fn)
     else:
         raise NotImplementedError
 

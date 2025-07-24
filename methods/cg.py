@@ -23,6 +23,7 @@ class ClassifierGuidance(BaseGuidance):
         alpha_prod_t = alpha_prod_ts[t]
         alpha_prod_t_prev = alpha_prod_t_prevs[t]
         t = ts[t]
+        kwargs.pop('bon_guider', None)  # remove bon_guider if exists
 
         # alg 2 in classifier-guidance paper
         epsilon = unet(x, t)

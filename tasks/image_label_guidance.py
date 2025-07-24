@@ -38,7 +38,6 @@ class ImageLabelGuidance:
 
     @torch.enable_grad()
     def get_guidance_with_time(self, x_need_grad, time=0, func=lambda x:x, post_process=lambda x:x, return_logp=False, check_grad=True, **kwargs):
-
         if check_grad:
             check_grad_fn(x_need_grad)
         

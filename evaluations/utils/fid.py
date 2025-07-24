@@ -205,8 +205,9 @@ def calculate_fid(ref, test, batch_size, device, dims=2048, num_workers=1):
 
     model = InceptionV3([block_idx]).to(device)
 
-    m1, s1 = compute_statistics(ref, model, batch_size,
-                                        dims, device, num_workers)
+    # m1, s1 = compute_statistics(ref, model, batch_size,
+    #                                     dims, device, num_workers)
+    m1, s1 = torch.load(ref, map_location=device)
     m2, s2 = compute_statistics(test, model, batch_size,
                                         dims, device, num_workers)
     fid_value = calculate_frechet_distance(m1, s1, m2, s2, device)

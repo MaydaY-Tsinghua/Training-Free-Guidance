@@ -9,7 +9,7 @@ COND_VALIDITY_PATH_MAPPING = {
     'resnet_cifar10.pt': "ahsanjavid/convnext-tiny-finetuned-cifar10",
     'ozzyonfire/bird-species-classifier': "chriamue/bird-species-classifier",
     "timeclassifier_cifar10.pt": "ahsanjavid/convnext-tiny-finetuned-cifar10",
-    "timeclassifier_imagenet.pt": "google/vit-base-patch16-224",
+    "ckpts/models/timeclassifier_imagenet.pt": "google/vit-base-patch16-224",
     'nateraw/vit-age-classifier': 'ibombonato/swin-age-classifier', # 0 for young, 1 for old
     'rizvandwiki/gender-classification-2': 'rizvandwiki/gender-classification', # 0 for female 1 for male
     'enzostvs/hair-color': 'londe33/hair_v02',   # hair color (3->1 red, 0->2 black, 1->3 blond)

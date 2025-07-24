@@ -4,8 +4,9 @@ image_size=256
 dataset="imagenet"
 model_name_or_path='models/openai_imagenet.pt'
 
-task=label_guidance
-guide_network='google/vit-base-patch16-224'
+task=label_guidance_time
+guide_network='ckpts/models/timeclassifier_imagenet.pt'
+bon_guidance='google/vit-base-patch16-224'
 target=111
 
 train_steps=1000
@@ -15,22 +16,26 @@ clip_x0=True
 seed=42
 logging_dir='logs'
 per_sample_batch_size=2
-num_samples=2
+num_samples=4
 logging_resolution=512
-guidance_name='tfg'
+guidance_name='cg'
 eval_batch_size=2
 wandb=False
+
 
 rho=2
 mu=0.5
 sigma=0.1
 eps_bsz=1
 iter_steps=4
+guidance_strength=10
 
 CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES python main.py \
     --data_type $data_type \
     --task $task \
     --image_size $image_size \
+    --bon_guidance $bon_guidance \
+    --guidance_strength $guidance_strength \
     --dataset $dataset \
     --guide_network $guide_network \
     --logging_resolution $logging_resolution \

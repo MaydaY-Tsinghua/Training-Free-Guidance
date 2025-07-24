@@ -14,7 +14,7 @@
 # module load python/3.8 cuda/11.7  (example)
 
 # Set CUDA device (optional, Slurm will often handle this)
-# export CUDA_VISIBLE_DEVICES=0,
+export CUDA_VISIBLE_DEVICES=6,
 
 # Parameters
 data_type=image
@@ -24,7 +24,7 @@ model_name_or_path='models/openai_imagenet.pt'
 
 task=label_guidance
 guide_network='google/vit-base-patch16-224'
-bon_guidance='google/vit-base-patch16-384'
+bon_guidance='google/vit-base-patch16-224'
 target=444
 
 train_steps=1000
@@ -33,7 +33,7 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=12
+per_sample_batch_size=2
 num_samples=256
 logging_resolution=512
 guidance_name='bfs'
@@ -46,6 +46,7 @@ mu=0.8
 sigma=0.01
 eps_bsz=1
 iter_steps=4
+recur_steps=2
 
 start=25
 step_size=25
@@ -56,6 +57,7 @@ python main.py \
     --data_type $data_type \
     --task $task \
     --bon_rate $bon_rate \
+    --recur_steps $recur_steps \
     --image_size $image_size \
     --dataset $dataset \
     --guide_network $guide_network \

@@ -55,7 +55,8 @@ class BasePipeline(object):
             # samples = samples[torch.arange(sample_size), idx]
 
             samples = self.network.tensor_to_obj(samples)
-                    
+        else:
+            compute = {'compute': -1}
         return samples, compute
     
     def evaluate(self, samples):
