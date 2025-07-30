@@ -118,12 +118,12 @@ class BFSCGGuidance(BaseGuidance):
             num_children = x.shape[0] * torch.softmax(logprobs * temp, dim=0)
             num_children = torch.round(num_children).long()
             ## rebase
-            if self.args.guidance_name == 'bfs-resample':
+            if self.args.guidance_name == 'bfs-cg-resample':
                 resampled_indices = torch.repeat_interleave(
                     torch.arange(x.shape[0], device=x.device), num_children
                 )[:x.shape[0]]
             ## pruning
-            elif self.args.guidance_name == 'bfs-prune':
+            elif self.args.guidance_name == 'bfs-cg-prune':
                 resampled_indices = torch.where(num_children > 0)[0]
             x_prev = x_prev[resampled_indices]
 

@@ -70,9 +70,10 @@ class ImageSampler(BaseSampler):
                 generator=self.generator,
                 device=self.device,
             )
-
+            t = 0
+            guidance.reset()
             for t in range(self.inference_steps):
-                
+            # while t < self.inference_steps:
                 tot_compute += x.shape[0]
                 x = guidance.guide_step(
                     x, t, self.unet,

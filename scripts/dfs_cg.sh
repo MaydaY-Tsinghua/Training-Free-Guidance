@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=3
+CUDA_VISIBLE_DEVICES=7
 data_type=image
 image_size=256
 dataset="imagenet"
@@ -10,15 +10,15 @@ bon_guidance='google/vit-base-patch16-224'
 target=222
 
 train_steps=1000
-inference_steps=50
+inference_steps=100
 eta=1.0
 clip_x0=True
-seed=3
+seed=42
 logging_dir='logs'
 per_sample_batch_size=1
-num_samples=1000
+num_samples=256
 logging_resolution=512
-guidance_name='bfs-cg-resample'
+guidance_name='dfs-cg'
 eval_batch_size=32
 wandb=False
 
@@ -30,9 +30,11 @@ eps_bsz=1
 iter_steps=4
 guidance_strength=10
 
-temp=1.5
-start=25
+start=70
 step_size=25
+threshold=0.6
+budget=4
+recur_depth=70
 
 CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES python main.py \
     --data_type $data_type \
@@ -61,7 +63,9 @@ CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES python main.py \
     --num_samples $num_samples \
     --guidance_name $guidance_name \
     --eval_batch_size $eval_batch_size \
-    --temp $temp \
+    --budget $budget \
+    --threshold $threshold \
+    --recur_depth $recur_depth \
     --start $start \
     --step_size $step_size 
 

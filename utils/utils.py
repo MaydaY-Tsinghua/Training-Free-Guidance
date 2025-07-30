@@ -40,13 +40,17 @@ def get_logging_dir(arg_dict: dict):
         suffix = f"{suffix1}/{suffix2}/{suffix3}"
         if 'cg' in arg_dict['guidance_name']:
             suffix += f"+guidance_stength={arg_dict['guidance_strength']}"
-    
+    if 'dfs' in arg_dict['guidance_name']:
+        suffix = f"start={arg_dict['start']}+step_size={arg_dict['step_size']}+threshold={arg_dict['threshold']}+budget={arg_dict['budget']}+recur_depth={arg_dict['recur_depth']}"
+        if 'cg' in arg_dict['guidance_name']:
+            suffix += f"+guidance_strength={arg_dict['guidance_strength']}"
+    suffix += f"+seed={arg_dict['seed']}"
     return os.path.join(
         arg_dict['logging_dir'],
         f"guidance_name={arg_dict['guidance_name']}+recur_steps={arg_dict['recur_steps']}+iter_steps={arg_dict['iter_steps']}",
         "model=" + arg_dict['model_name_or_path'].replace("/", '_'),
         "guide_net=" + arg_dict['guide_network'].replace('/', '_'),
-        "bon_guidance=" + arg_dict['bon_guidance'].replace('/', '_'),
+        # "bon_guidance=" + arg_dict['bon_guidance'].replace('/', '_'),
         "target=" + str(arg_dict['target']).replace(" ", "_"),
         suffix,
     )
@@ -126,9 +130,12 @@ def get_guidance(args, network):
     elif 'bfs' in args.guidance_name and 'cg' not in args.guidance_name:
         from methods.bfs import BFSGuidance
         return BFSGuidance(args, noise_fn=noise_fn)
-    elif 'bfs-cg' == args.guidance_name:
+    elif 'bfs-cg' in args.guidance_name:
         from methods.bfs_cg import BFSCGGuidance
         return BFSCGGuidance(args, noise_fn=noise_fn)
+    elif 'dfs-cg' in args.guidance_name:
+        from methods.dfs_cg import DFSGuidance
+        return DFSGuidance(args, noise_fn=noise_fn)
     else:
         raise NotImplementedError
 

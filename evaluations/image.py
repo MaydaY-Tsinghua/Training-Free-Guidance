@@ -50,7 +50,6 @@ class ImageEvaluator(BaseEvaluator):
             self.classifier.to(self.args.device)
 
             preds = self._get_prediction(images, batchsize=self.args.eval_batch_size, guide_network=guide_network)
-
             if return_preds:
                 return preds
             
@@ -97,6 +96,36 @@ class ImageEvaluator(BaseEvaluator):
         score = kid.compute()
         return score[0].item()
 
+    @torch.no_grad()
+    def _get_ood(self, samples, batchsize=None, guide_network=None):
+        assert self.feature_extractor is not None
+        assert self.classifier is not None
+
+        if guide_network is None:
+            guide_network = self.args.guide_network
+
+        if batchsize is None:
+            batchsize = len(samples)
+        
+        # iterate over the samples with batch size
+        for i in range(0, len(samples), batchsize):
+            inputs = self.feature_extractor(samples[i:i+batchsize], return_tensors="pt")
+            inputs = {k: v.to(self.args.device) for k, v in inputs.items()}
+            outputs = self.classifier(**inputs)
+            probs = torch.nn.functional.softmax(outputs.logits, dim=1)
+            # this is a hard coding for the specific models
+            # if 'age' in guide_network:
+            #     probs = torch.cat([probs[:, :3].mean(dim=1, keepdim=True), probs[:, 5:].mean(dim=1, keepdim=True)], dim=1)
+            # elif 'hair' in guide_network:
+            #     probs = torch.cat([probs[:, 2:3], probs[:, 3:4], probs[:, 0:1], probs[:, 1:2]], dim=1)
+
+            if i == 0:
+                all_probs = probs
+            else:
+                all_probs = torch.cat([all_probs, probs], dim=0)
+
+        return torch.max(all_probs, dim=1).values.mean().cpu().numpy()
+
         
     @torch.no_grad()
     def _get_prediction(self, samples, batchsize=None, guide_network=None):
@@ -115,12 +144,11 @@ class ImageEvaluator(BaseEvaluator):
             inputs = {k: v.to(self.args.device) for k, v in inputs.items()}
             outputs = self.classifier(**inputs)
             probs = torch.nn.functional.softmax(outputs.logits, dim=1)
-            
             # this is a hard coding for the specific models
-            if 'age' in guide_network:
-                probs = torch.cat([probs[:, :3].mean(dim=1, keepdim=True), probs[:, 5:].mean(dim=1, keepdim=True)], dim=1)
-            elif 'hair' in guide_network:
-                probs = torch.cat([probs[:, 2:3], probs[:, 3:4], probs[:, 0:1], probs[:, 1:2]], dim=1)
+            # if 'age' in guide_network:
+            #     probs = torch.cat([probs[:, :3].mean(dim=1, keepdim=True), probs[:, 5:].mean(dim=1, keepdim=True)], dim=1)
+            # elif 'hair' in guide_network:
+            #     probs = torch.cat([probs[:, 2:3], probs[:, 3:4], probs[:, 0:1], probs[:, 1:2]], dim=1)
 
             if i == 0:
                 all_probs = probs

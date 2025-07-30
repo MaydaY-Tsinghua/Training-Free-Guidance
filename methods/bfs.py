@@ -75,7 +75,7 @@ class BFSGuidance(BaseGuidance):
     
     def get_temp(self, t, alpha_prod_ts, alpha_prod_t_prevs):
         scheduler = alpha_prod_ts / alpha_prod_t_prevs
-        return self.args.temp * scheduler[t] * len(scheduler) / scheduler.sum()
+        return self.args.temp
 
     def resampling_steps(self, **kwargs):
         return list(range(self.args.start, self.args.inference_steps, self.args.step_size))

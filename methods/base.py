@@ -17,7 +17,9 @@ class BaseGuidance:
             self.noise_fn = noise_fn
         else:
             self.noise_fn = noise_fn
-
+    def reset(self, **kwargs):
+        pass
+    
     def guide_step(
         self,
         x: torch.Tensor,

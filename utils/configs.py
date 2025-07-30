@@ -101,7 +101,12 @@ class Arguments:
     bon_guidance: str = field(default=None)
 
     # bfs
-    start: int = field(default=25)
+    start: int = field(default=50)
     step_size: int = field(default=25)
     temp: float = field(default=0.0)
+
+    # dfs
+    recur_depth: int = field(default=50)
+    threshold: float = field(default=0.7)
+    budget: int = field(default=4)
 

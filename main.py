@@ -8,7 +8,9 @@ if __name__ == '__main__':
     # Please tsee utils/config.py for the complete argument lists
     args = get_config()
     ## prepare core modules based on configs ##
-    
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.deterministic = False
     # Unconditional generative model
     network = get_network(args)
     # guidance method encoded by prediction model

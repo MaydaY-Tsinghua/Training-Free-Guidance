@@ -24,7 +24,7 @@ model_name_or_path='models/openai_imagenet.pt'
 
 task=label_guidance
 guide_network='google/vit-base-patch16-224'
-bon_guidance="google/vit-base-patch16-384"
+bon_guidance="google/vit-base-patch16-224"
 target=444
 
 train_steps=1000
@@ -33,7 +33,7 @@ eta=1.0
 clip_x0=True
 seed=42
 logging_dir='logs'
-per_sample_batch_size=12
+per_sample_batch_size=4
 num_samples=256
 logging_resolution=512
 guidance_name='bfs-resample'
